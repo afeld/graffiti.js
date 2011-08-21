@@ -32,7 +32,7 @@ var Graffiti = {
     this.randomDrip(this.textObj);
     
     // this.wave(this.paper.width, 0);
-    this.makeWave(700, 100);
+    this.makeWave(this.paper.width, this.paper.height * 0.3);
   },
   
   getPath: function(obj){
@@ -69,7 +69,11 @@ var Graffiti = {
     $(ellipse.node)
       .css('stroke-dasharray', circumference + ',' + circumference)
       .css('stroke-dashoffset', circumference)
-      .animate({'stroke-dashoffset': offsetDest}, 4000);
+      // scale the animation time by the size of the wave, so that the speed
+      // is more consistent
+      .animate({'stroke-dashoffset': offsetDest}, vRad * 4, 'linear');
+      
+    return ellipse;
   },
   
   randomDrip: function(obj){
