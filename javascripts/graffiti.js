@@ -21,7 +21,7 @@ var Graffiti = {
   sourceText: 'Graffiti.js',
   textObj: undefined,
   drips: undefined,
-  stackedLetters: [],
+  stackedPaths: [],
   mode: 'waves',
   
   init: function(){
@@ -42,13 +42,13 @@ var Graffiti = {
     });
   },
   
-  stackLetter: function(letter){
-    // letter.attr({'fill-opacity': 1});
+  stackPath: function(path){
+    // path.attr({'fill-opacity': 1});
     
     var shiftLeft = true,
-      clone = letter.clone();
+      clone = path.clone();
     
-    clone.insertBefore(letter);
+    clone.insertBefore(path);
     clone
       .translate((shiftLeft ? -10 : 10), 20)
       .scale(1.2, 1.2)
@@ -72,20 +72,20 @@ var Graffiti = {
       case 'stackLetters':
         var i = this.getRandomIndex(this.textObj),
           letter = this.textObj[i],
-          stackSet = this.stackedLetters[i];
+          stackSet = this.stackedPaths[i];
         
         // create the stack set if it doesn't exist already
         if (!stackSet){
           stackSet = this.paper.set();
           stackSet.insertBefore(this.textObj);
-          this.stackedLetters[i] = stackSet;
+          this.stackedPaths[i] = stackSet;
         }
         
         var letterToStack = _(stackSet).last() || letter,
-          clone = this.stackLetter(letterToStack);
+          clone = this.stackPath(letterToStack);
         
         clone.insertBefore(letterToStack);
-        this.stackedLetters[i].push(clone);
+        this.stackedPaths[i].push(clone);
         
         // a bit of a hack to keep the original text and drips on top
         this.textObj.toFront();
