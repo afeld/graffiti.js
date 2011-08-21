@@ -1,6 +1,7 @@
 var Graffiti = {
   WIDTH: 800,
   HEIGHT: 600,
+  OPACITY: 0.8,
   
   SURFACE_PHOTOS: [
     {
@@ -40,9 +41,11 @@ var Graffiti = {
       strokeColor = 'white';
     }
     
-    this.textObj = this.paper.print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
+    this.textObj = this.paper
+      .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
       .attr({
         fill: 'rgb(' + textColor.join(',') + ')',
+        'fill-opacity': this.OPACITY,
         stroke: strokeColor,
         'stroke-width': 5,
       });
