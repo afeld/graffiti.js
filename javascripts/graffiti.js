@@ -1,6 +1,4 @@
 var Graffiti = {
-  WIDTH: 800,
-  HEIGHT: 600,
   STROKE_WIDTH: 5,
   OPACITY: 0.7,
   
@@ -24,7 +22,8 @@ var Graffiti = {
   drips: [],
   
   init: function(){
-    this.paper = Raphael(0, 0, this.WIDTH, this.HEIGHT);
+    var $window = $(window);
+    this.paper = Raphael(0, 0, $window.width(), $window.height());
     
     var background = this.SURFACE_PHOTOS[0];
     this.backgroundImage = this.paper.image(background.src, 0, 0, this.paper.width, this.paper.height);
