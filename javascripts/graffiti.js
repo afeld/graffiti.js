@@ -80,15 +80,16 @@ var Graffiti = {
     // The arc of the ellipse starts at the 3 o'clock point, so to
     // acheive the animation coming from the top, flip the radii, then
     // rotate three-quarters clockwise to get the intended shape.
-    var ellipse = this.paper
-        .ellipse(startX, this.paper.height, vRad, hRad)
-        .attr({
-          rotation: 270,
-          fill: this.colorStr(waveColor),
-          'fill-opacity': 0,
-          stroke: 'white',
-          'stroke-width': 10
-        });
+    var ellipse = this.paper.ellipse(startX, this.paper.height, vRad, hRad);
+    ellipse
+      .attr({
+        rotation: 270,
+        fill: this.colorStr(waveColor),
+        'fill-opacity': 0,
+        stroke: 'white',
+        'stroke-width': 1
+      })
+      .animate({'stroke-width': 10}, fallingTime);
     
     $(ellipse.node)
       .css('stroke-dasharray', circumference + ',' + circumference)
