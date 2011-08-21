@@ -21,7 +21,7 @@ var Graffiti = {
   sourceText: 'Graffiti.js',
   textObj: undefined,
   drips: [],
-  stackedLetters: {},
+  stackedLetters: [],
   mode: 'waves',
   
   init: function(){
@@ -34,7 +34,7 @@ var Graffiti = {
     this.redrawText();
     this.randomDrip(this.textObj);
     
-    this.mode = this.MODES[Math.floor(Math.random() * this.MODES.length)]
+    this.mode = 'stackLetters'; //this.getRandomElt(this.MODES);
     
     $(window).click(function(e){
       Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
@@ -47,11 +47,14 @@ var Graffiti = {
     var shiftLeft = true,
       clone = letter.clone();
     
-    clone.insertBefore(letter);
+    // clone.insertBefore(letter);
     clone
       .translate((shiftLeft ? -10 : 10), 20)
       .scale(1.2, 1.2)
-      .attr({fill: this.colorStr(this.randomColor())});
+      .attr({
+        fill: this.colorStr(this.randomColor()),
+        stroke: 'black'
+      });
     
     return clone;
   },
@@ -74,15 +77,31 @@ var Graffiti = {
         // this.randomDrip(wave);
         break;
       case 'stackLetters':
-        var letter = this.textObj[0];
-        this.stackedLetters[letter] || (this.stackedLetters[letter] = []);
+        var i = this.getRandomIndex(this.textObj),
+          letter = this.textObj[i];
         
-        var letterToStack = _(this.stackedLetters[letter]).last() || letter,
+        if (!this.stackedLetters[i]){
+          var newSet = this.paper.set();
+          newSet.insertBefore(this.textObj);
+          this.stackedLetters[i] = newSet;
+        }
+        
+        var letterToStack = _(this.stackedLetters[i]).first() || letter,
           clone = this.stackLetter(letterToStack);
         
-        this.stackedLetters[letter].push(clone);
+        clone.insertBefore(letterToStack);
+        this.stackedLetters[i].push(clone);
         break;
     }
+  },
+  
+  getRandomIndex: function(ary){
+    return Math.floor(Math.random() * ary.length);
+  },
+  
+  getRandomElt: function(ary){
+    var i = this.getRandomIndex(ary);
+    return ary[i];
   },
   
   getPath: function(obj){
