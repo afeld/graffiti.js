@@ -31,9 +31,32 @@ var Graffiti = {
     this.redrawText();
     this.randomDrip(this.textObj);
     
+    this.stackLetters(this.textObj[0]);
+    
     $(window).click(function(e){
       Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
     });
+  },
+  
+  stackLetters: function(letter, numTimes){
+    numTimes || (numTimes = 10);
+    
+    // letter.attr({'fill-opacity': 1});
+    
+    var shiftLeft = true,
+      lastLetter = letter;
+    
+    for (var i = 0; i < numTimes; i++){
+      var clone = lastLetter.clone();
+      clone.insertBefore(lastLetter);
+      clone
+        .translate((shiftLeft ? -10 : 10), 20)
+        .scale(1.2, 1.2)
+        .attr({fill: this.colorStr(this.randomColor())});
+      
+      lastLetter = clone;
+      // shiftLeft = !shiftLeft;
+    }
   },
   
   onClick: function(mouseX, mouseY){
