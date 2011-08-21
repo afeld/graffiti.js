@@ -47,7 +47,7 @@ var Graffiti = {
     var shiftLeft = true,
       clone = letter.clone();
     
-    // clone.insertBefore(letter);
+    clone.insertBefore(letter);
     clone
       .translate((shiftLeft ? -10 : 10), 20)
       .scale(1.2, 1.2)
@@ -78,15 +78,17 @@ var Graffiti = {
         break;
       case 'stackLetters':
         var i = this.getRandomIndex(this.textObj),
-          letter = this.textObj[i];
+          letter = this.textObj[i],
+          stackSet = this.stackedLetters[i];
         
-        if (!this.stackedLetters[i]){
-          var newSet = this.paper.set();
-          newSet.insertBefore(this.textObj);
-          this.stackedLetters[i] = newSet;
+        // create the stack set if it doesn't exist already
+        if (!stackSet){
+          stackSet = this.paper.set();
+          stackSet.insertBefore(this.textObj);
+          this.stackedLetters[i] = stackSet;
         }
         
-        var letterToStack = _(this.stackedLetters[i]).first() || letter,
+        var letterToStack = _(stackSet).last() || letter,
           clone = this.stackLetter(letterToStack);
         
         clone.insertBefore(letterToStack);
