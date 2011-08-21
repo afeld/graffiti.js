@@ -35,7 +35,7 @@ var Graffiti = {
     this.drips = this.paper.set()
     this.randomDrip(this.textObj);
     
-    this.mode = 'stackLetters'; //this.getRandomElt(this.MODES);
+    this.mode = this.getRandomElt(this.MODES);
     
     $(window).click(function(e){
       Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
@@ -63,17 +63,9 @@ var Graffiti = {
   onClick: function(mouseX, mouseY){
     switch (this.mode){
       case 'waves':
-        var startX, backwards;
+        var startX = (mouseX > this.paper.width/2) ? this.paper.width : 0,
+          wave = this.makeWave(startX, mouseY, mouseX, this.paper.height);
         
-        if (mouseX > this.paper.width/2){
-          startX = this.paper.width;
-          backwards = true;
-        } else {
-          startX = 0;
-          backwards = false;
-        }
-
-        var wave = this.makeWave(startX, mouseY, backwards);
         wave.insertBefore(this.textObj);
         // this.randomDrip(wave);
         break;
@@ -116,9 +108,9 @@ var Graffiti = {
   },
   
   // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
-  makeWave: function(startX, startY, backwards){
-    var vRad = this.paper.height - startY,
-      hRad = Math.pow(Math.random(), 3) * this.paper.width + 50,
+  makeWave: function(startX, startY, endX, endY){
+    var vRad = endY - startY,
+      hRad = Math.abs(endX - startX),
       // Ramanujan approximation
       circumference = this.getCircumference(hRad, vRad),
       // scale the animation time by the size of the wave, so that the
@@ -127,7 +119,7 @@ var Graffiti = {
       waveColor = [Math.random()*0, Math.random()*50 + 205, Math.random()*50 + 205],
       offsetDest;
     
-    if (backwards){
+    if (endX < startX){
       // animate counter-clockwise
       offsetDest = circumference + (circumference / 4);
     } else {
@@ -138,7 +130,7 @@ var Graffiti = {
     // The arc of the ellipse starts at the 3 o'clock point, so to
     // acheive the animation coming from the top, flip the radii, then
     // rotate three-quarters clockwise to get the intended shape.
-    var ellipse = this.paper.ellipse(startX, this.paper.height, vRad, hRad);
+    var ellipse = this.paper.ellipse(startX, endY, vRad, hRad);
     ellipse
       .attr({
         rotation: 270,
