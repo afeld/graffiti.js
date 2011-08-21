@@ -72,14 +72,7 @@ var Graffiti = {
       case 'stackLetters':
         var i = this.getRandomIndex(this.textObj),
           letter = this.textObj[i],
-          stackSet = this.stackedPaths[i];
-        
-        // create the stack set if it doesn't exist already
-        if (!stackSet){
-          stackSet = this.paper.set();
-          stackSet.insertBefore(this.textObj);
-          this.stackedPaths[i] = stackSet;
-        }
+          stackSet = this.getStackSet(i);
         
         var letterToStack = _(stackSet).last() || letter,
           clone = this.stackPath(letterToStack);
@@ -92,6 +85,19 @@ var Graffiti = {
         this.drips.toFront();
         break;
     }
+  },
+  
+  getStackSet: function(i){
+    var stackSet = this.stackedPaths[i];
+    
+    // create the stack set if it doesn't exist already
+    if (!stackSet){
+      stackSet = this.paper.set();
+      stackSet.insertBefore(this.textObj);
+      this.stackedPaths[i] = stackSet;
+    }
+    
+    return stackSet;
   },
   
   getRandomIndex: function(ary){
