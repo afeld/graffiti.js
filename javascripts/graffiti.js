@@ -31,8 +31,7 @@ var Graffiti = {
     this.redrawText();
     this.randomDrip(this.textObj);
     
-    // this.wave(this.paper.width, 0);
-    this.makeWave(this.paper.width, this.paper.height * 0.3);
+    this.makeWave(this.paper.width, this.paper.height * 0.3, true);
   },
   
   getPath: function(obj){
@@ -40,25 +39,17 @@ var Graffiti = {
   },
   
   // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
-  makeWave: function(startX, startY){
+  makeWave: function(startX, startY, backwards){
     var vRad = this.paper.height - startY,
       hRad = vRad * 0.4,
-      // The arc of the ellipse starts at the 3 o'clock point, so to
-      // acheive the animation coming from the top, flip the radii, then
-      // rotate three-quarters clockwise to get the intended shape.
-      ellipse = this.paper
-        .ellipse(startX, this.paper.height, vRad, hRad)
-        .rotate(270)
-        .attr({
-          stroke: 'white',
-          'stroke-width': 10
-        });
-    
-    // Ramanujan approximation
-    var circumference = Math.PI * (3*(hRad + vRad) - Math.sqrt((3*hRad + vRad) * (hRad + (3*vRad)))),
+      // Ramanujan approximation
+      circumference = Math.PI * (3*(hRad + vRad) - Math.sqrt((3*hRad + vRad) * (hRad + (3*vRad)))),
+      // scale the animation time by the size of the wave, so that the
+      // speed is somewhat consistent
+      fallingTime = vRad * 4,
       offsetDest;
     
-    if (startX > this.paper.width/2){
+    if (backwards){
       // animate counter-clockwise
       offsetDest = circumference + (circumference / 4);
     } else {
@@ -66,12 +57,24 @@ var Graffiti = {
       offsetDest = circumference - (circumference / 4);
     }
     
+    // The arc of the ellipse starts at the 3 o'clock point, so to
+    // acheive the animation coming from the top, flip the radii, then
+    // rotate three-quarters clockwise to get the intended shape.
+    var ellipse = this.paper
+        .ellipse(startX, this.paper.height, vRad, hRad)
+        .attr({
+          rotation: 270,
+          fill: 'blue',
+          'fill-opacity': 0,
+          stroke: 'white',
+          'stroke-width': 10
+        });
+    
     $(ellipse.node)
       .css('stroke-dasharray', circumference + ',' + circumference)
       .css('stroke-dashoffset', circumference)
-      // scale the animation time by the size of the wave, so that the speed
-      // is more consistent
-      .animate({'stroke-dashoffset': offsetDest}, vRad * 4, 'linear');
+      .animate({'stroke-dashoffset': offsetDest}, fallingTime, 'linear')
+      .animate({'fill-opacity': 0.5}, 500);
       
     return ellipse;
   },
