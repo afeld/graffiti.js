@@ -1,8 +1,6 @@
 var Graffiti = {
-  WIDTH: 800,
-  HEIGHT: 600,
   STROKE_WIDTH: 5,
-  OPACITY: 0.8,
+  OPACITY: 0.7,
   
   SURFACE_PHOTOS: [
     {
@@ -24,13 +22,86 @@ var Graffiti = {
   drips: [],
   
   init: function(){
-    this.paper = Raphael(0, 0, this.WIDTH, this.HEIGHT);
+    var $window = $(window);
+    this.paper = Raphael(0, 0, $window.width(), $window.height());
     
     var background = this.SURFACE_PHOTOS[0];
     this.backgroundImage = this.paper.image(background.src, 0, 0, this.paper.width, this.paper.height);
-     
+    
     this.redrawText();
     this.randomDrip(this.textObj);
+    
+    $(window).click(function(e){
+      Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
+    });
+  },
+  
+  onClick: function(mouseX, mouseY){
+    var paper = this.paper,
+      startX, backwards;
+    
+    if (mouseX > paper.width/2){
+      startX = paper.width;
+      backwards = true;
+    } else {
+      startX = 0;
+      backwards = false;
+    }
+    
+    var wave = this.makeWave(startX, mouseY, backwards);
+    wave.insertBefore(this.textObj);
+    // this.randomDrip(wave);
+  },
+  
+  getPath: function(obj){
+    return obj.getSubpath(0, obj.getTotalLength());
+  },
+  
+  // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
+  makeWave: function(startX, startY, backwards){
+    var vRad = this.paper.height - startY,
+      hRad = Math.pow(Math.random(), 3) * this.paper.width + 50,
+      // Ramanujan approximation
+      circumference = this.getCircumference(hRad, vRad),
+      // scale the animation time by the size of the wave, so that the
+      // speed is somewhat consistent
+      fallingTime = circumference / 4,
+      waveColor = [Math.random()*0, Math.random()*50 + 205, Math.random()*50 + 205],
+      offsetDest;
+    
+    if (backwards){
+      // animate counter-clockwise
+      offsetDest = circumference + (circumference / 4);
+    } else {
+      // animate clockwise
+      offsetDest = circumference - (circumference / 4);
+    }
+    
+    // The arc of the ellipse starts at the 3 o'clock point, so to
+    // acheive the animation coming from the top, flip the radii, then
+    // rotate three-quarters clockwise to get the intended shape.
+    var ellipse = this.paper
+        .ellipse(startX, this.paper.height, vRad, hRad)
+        .attr({
+          rotation: 270,
+          fill: this.colorStr(waveColor),
+          'fill-opacity': 0,
+          stroke: 'white',
+          'stroke-width': 10
+        });
+    
+    $(ellipse.node)
+      .css('stroke-dasharray', circumference + ',' + circumference)
+      .css('stroke-dashoffset', circumference)
+      .animate({'stroke-dashoffset': offsetDest}, fallingTime, 'linear')
+      .animate({'fill-opacity': 0.5}, 500);
+      
+    return ellipse;
+  },
+  
+  // Ramanujan approximation for an ellipse
+  getCircumference: function(rx, ry){
+    return Math.PI * (3*(rx + ry) - Math.sqrt((3*rx + ry) * (rx + (3*ry))))
   },
   
   randomDrip: function(obj){
@@ -40,9 +111,17 @@ var Graffiti = {
         this.randomDrip(item);
       }
     } else {
-      var pathLength = obj.getTotalLength(),
-        start = obj.getPointAtLength( Math.random() * pathLength ),
-        strokeWidth = obj.attrs['stroke-width'] || this.STROKE_WIDTH,
+      var pathLength, start;
+      
+      if (obj.type === 'ellipse'){
+        pathLength = this.getCircumference(obj.attrs.rx, obj.attrs.ry);
+        // TODO start = {x: , y: };
+      } else {
+        pathLength = obj.getTotalLength();
+        start = obj.getPointAtLength( Math.random() * pathLength );
+      }
+      
+      var strokeWidth = obj.attrs['stroke-width'] || this.STROKE_WIDTH,
         strokeColor = obj.attrs.stroke,
         drip = this.paper
           .rect(start.x, start.y, strokeWidth, strokeWidth, strokeWidth/2)
@@ -68,9 +147,9 @@ var Graffiti = {
     }
     
     this.textObj = this.paper
-      .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
+      .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 300)
       .attr({
-        fill: 'rgb(' + textColor.join(',') + ')',
+        fill: this.colorStr(textColor),
         'fill-opacity': this.OPACITY,
         stroke: strokeColor,
         'stroke-width': this.STROKE_WIDTH,
@@ -79,6 +158,10 @@ var Graffiti = {
   
   randomColor: function(){
     return [ Math.random()*255, Math.random()*255, Math.random()*255 ];
+  },
+  
+  colorStr: function(rgb){
+    return 'rgb(' + rgb.join(',') + ')';
   }
 };
 
