@@ -47,6 +47,7 @@ var Graffiti = {
       // scale the animation time by the size of the wave, so that the
       // speed is somewhat consistent
       fallingTime = vRad * 4,
+      waveColor = [Math.random()*50, Math.random()*50 + 205, Math.random()*50 + 205],
       offsetDest;
     
     if (backwards){
@@ -64,7 +65,7 @@ var Graffiti = {
         .ellipse(startX, this.paper.height, vRad, hRad)
         .attr({
           rotation: 270,
-          fill: 'blue',
+          fill: this.colorStr(waveColor),
           'fill-opacity': 0,
           stroke: 'white',
           'stroke-width': 10
@@ -116,7 +117,7 @@ var Graffiti = {
     this.textObj = this.paper
       .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
       .attr({
-        fill: 'rgb(' + textColor.join(',') + ')',
+        fill: this.colorStr(textColor),
         'fill-opacity': this.OPACITY,
         stroke: strokeColor,
         'stroke-width': this.STROKE_WIDTH,
@@ -125,6 +126,10 @@ var Graffiti = {
   
   randomColor: function(){
     return [ Math.random()*255, Math.random()*255, Math.random()*255 ];
+  },
+  
+  colorStr: function(rgb){
+    return 'rgb(' + rgb.join(',') + ')';
   }
 };
 
