@@ -2,6 +2,7 @@ var Graffiti = {
   STROKE_WIDTH: 5,
   OPACITY: 0.7,
   
+  MODES: ['waves', 'stackLetters'],
   SURFACE_PHOTOS: [
     {
       src: 'http://farm4.static.flickr.com/3055/2311918302_93a0bfc270_b.jpg',
@@ -20,6 +21,8 @@ var Graffiti = {
   sourceText: 'Graffiti.js',
   textObj: undefined,
   drips: [],
+  stackedLetters: {},
+  mode: 'waves',
   
   init: function(){
     var $window = $(window);
@@ -31,49 +34,55 @@ var Graffiti = {
     this.redrawText();
     this.randomDrip(this.textObj);
     
-    this.stackLetters(this.textObj[0]);
+    this.mode = this.MODES[Math.floor(Math.random() * this.MODES.length)]
     
     $(window).click(function(e){
       Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
     });
   },
   
-  stackLetters: function(letter, numTimes){
-    numTimes || (numTimes = 10);
-    
+  stackLetter: function(letter){
     // letter.attr({'fill-opacity': 1});
     
     var shiftLeft = true,
-      lastLetter = letter;
+      clone = letter.clone();
     
-    for (var i = 0; i < numTimes; i++){
-      var clone = lastLetter.clone();
-      clone.insertBefore(lastLetter);
-      clone
-        .translate((shiftLeft ? -10 : 10), 20)
-        .scale(1.2, 1.2)
-        .attr({fill: this.colorStr(this.randomColor())});
-      
-      lastLetter = clone;
-      // shiftLeft = !shiftLeft;
-    }
+    clone.insertBefore(letter);
+    clone
+      .translate((shiftLeft ? -10 : 10), 20)
+      .scale(1.2, 1.2)
+      .attr({fill: this.colorStr(this.randomColor())});
+    
+    return clone;
   },
   
   onClick: function(mouseX, mouseY){
-    var paper = this.paper,
-      startX, backwards;
-    
-    if (mouseX > paper.width/2){
-      startX = paper.width;
-      backwards = true;
-    } else {
-      startX = 0;
-      backwards = false;
+    switch (this.mode){
+      case 'waves':
+        var startX, backwards;
+        
+        if (mouseX > this.paper.width/2){
+          startX = this.paper.width;
+          backwards = true;
+        } else {
+          startX = 0;
+          backwards = false;
+        }
+
+        var wave = this.makeWave(startX, mouseY, backwards);
+        wave.insertBefore(this.textObj);
+        // this.randomDrip(wave);
+        break;
+      case 'stackLetters':
+        var letter = this.textObj[0];
+        this.stackedLetters[letter] || (this.stackedLetters[letter] = []);
+        
+        var letterToStack = _(this.stackedLetters[letter]).last() || letter,
+          clone = this.stackLetter(letterToStack);
+        
+        this.stackedLetters[letter].push(clone);
+        break;
     }
-    
-    var wave = this.makeWave(startX, mouseY, backwards);
-    wave.insertBefore(this.textObj);
-    // this.randomDrip(wave);
   },
   
   getPath: function(obj){
