@@ -20,7 +20,7 @@ var Graffiti = {
   backgroundImage: undefined,
   sourceText: 'Graffiti.js',
   textObj: undefined,
-  drips: [],
+  drips: undefined,
   stackedLetters: [],
   mode: 'waves',
   
@@ -32,6 +32,7 @@ var Graffiti = {
     this.backgroundImage = this.paper.image(background.src, 0, 0, this.paper.width, this.paper.height);
     
     this.redrawText();
+    this.drips = this.paper.set()
     this.randomDrip(this.textObj);
     
     this.mode = 'stackLetters'; //this.getRandomElt(this.MODES);
@@ -93,6 +94,10 @@ var Graffiti = {
         
         clone.insertBefore(letterToStack);
         this.stackedLetters[i].push(clone);
+        
+        // a bit of a hack to keep the original text and drips on top
+        this.textObj.toFront();
+        this.drips.toFront();
         break;
     }
   },
