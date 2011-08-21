@@ -31,10 +31,39 @@ var Graffiti = {
     
     this.redrawText();
     this.randomDrip(this.textObj);
+    
+    // this.wave(this.paper.width, 0);
+    this.makeWave(700, 100);
   },
   
   getPath: function(obj){
     return obj.getSubpath(0, obj.getTotalLength());
+  },
+  
+  makeWave: function(startX, startY){
+    var firstSpillVRad = this.paper.height - startY,
+      firstSpillHRad = firstSpillVRad * 0.4,
+      // The arc of the ellipse starts at the 3 o'clock point, so to
+      // acheive the animation coming from the top, flip the radii, then
+      // rotate three-quarters clockwise to get the intended shape.
+      firstSpill = this.paper.ellipse(startX, startY + firstSpillVRad, firstSpillVRad, firstSpillHRad).rotate(270);
+    
+    // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
+    var circumference = Math.PI * Math.sqrt( 2 * (Math.pow(firstSpillVRad, 2) + Math.pow(firstSpillHRad, 2)) ),
+      offsetDest;
+    
+    if (startX > this.paper.width/2){
+      // animate counter-clockwise
+      offsetDest = circumference + (circumference / 4);
+    } else {
+      // animate clockwise
+      offsetDest = circumference - (circumference / 4);
+    }
+    
+    $(firstSpill.node)
+      .css('stroke-dasharray', circumference + ',' + circumference)
+      .css('stroke-dashoffset', circumference)
+      .animate({'stroke-dashoffset': offsetDest}, 4000);
   },
   
   randomDrip: function(obj){
