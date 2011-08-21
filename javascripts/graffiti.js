@@ -1,6 +1,7 @@
 var Graffiti = {
   WIDTH: 800,
   HEIGHT: 600,
+  
   SURFACE_PHOTOS: [
     {
       src: 'http://farm4.static.flickr.com/3055/2311918302_93a0bfc270_b.jpg',
@@ -30,10 +31,25 @@ var Graffiti = {
   
   redrawText: function(){
     var font = this.paper.getFont("Amsterdam Graffiti", 800),
-      textObj = this.paper.print(50, this.paper.height/2, this.sourceText, font, 200);
+      textColor = this.randomColor(),
+      strokeColor;
     
-    textObj.attr({fill: 'white'});
-    this.textObj = textObj;
+    if ((textColor[0] + textColor[1] + textColor[2]) > (255 * 3 / 2)){
+      strokeColor = 'black';
+    } else {
+      strokeColor = 'white';
+    }
+    
+    this.textObj = this.paper.print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
+      .attr({
+        fill: 'rgb(' + textColor.join(',') + ')',
+        stroke: strokeColor,
+        'stroke-width': 5,
+      });
+  },
+  
+  randomColor: function(){
+    return [ Math.random()*255, Math.random()*255, Math.random()*255 ];
   }
 };
 
