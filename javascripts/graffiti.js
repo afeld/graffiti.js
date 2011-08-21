@@ -40,16 +40,23 @@ var Graffiti = {
     return obj.getSubpath(0, obj.getTotalLength());
   },
   
+  // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
   makeWave: function(startX, startY){
-    var firstSpillVRad = this.paper.height - startY,
-      firstSpillHRad = firstSpillVRad * 0.4,
+    var vRad = this.paper.height - startY,
+      hRad = vRad * 0.4,
       // The arc of the ellipse starts at the 3 o'clock point, so to
       // acheive the animation coming from the top, flip the radii, then
       // rotate three-quarters clockwise to get the intended shape.
-      firstSpill = this.paper.ellipse(startX, startY + firstSpillVRad, firstSpillVRad, firstSpillHRad).rotate(270);
+      ellipse = this.paper
+        .ellipse(startX, this.paper.height, vRad, hRad)
+        .rotate(270)
+        .attr({
+          stroke: 'white',
+          'stroke-width': 10
+        });
     
-    // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
-    var circumference = Math.PI * Math.sqrt( 2 * (Math.pow(firstSpillVRad, 2) + Math.pow(firstSpillHRad, 2)) ),
+    // Ramanujan approximation
+    var circumference = Math.PI * (3*(hRad + vRad) - Math.sqrt((3*hRad + vRad) * (hRad + (3*vRad)))),
       offsetDest;
     
     if (startX > this.paper.width/2){
@@ -60,7 +67,7 @@ var Graffiti = {
       offsetDest = circumference - (circumference / 4);
     }
     
-    $(firstSpill.node)
+    $(ellipse.node)
       .css('stroke-dasharray', circumference + ',' + circumference)
       .css('stroke-dashoffset', circumference)
       .animate({'stroke-dashoffset': offsetDest}, 4000);
