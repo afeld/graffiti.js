@@ -1,6 +1,7 @@
 var Graffiti = {
   WIDTH: 800,
   HEIGHT: 600,
+  STROKE_WIDTH: 5,
   OPACITY: 0.8,
   
   SURFACE_PHOTOS: [
@@ -20,6 +21,7 @@ var Graffiti = {
   backgroundImage: undefined,
   sourceText: 'Graffiti.js',
   textObj: undefined,
+  drips: [],
   
   init: function(){
     this.paper = Raphael(0, 0, this.WIDTH, this.HEIGHT);
@@ -28,6 +30,30 @@ var Graffiti = {
     this.backgroundImage = this.paper.image(background.src, 0, 0, this.paper.width, this.paper.height);
      
     this.redrawText();
+    this.randomDrip(this.textObj);
+  },
+  
+  randomDrip: function(obj){
+    if (obj.type === 'set'){
+      for (var i = 0; i < obj.length; i++){
+        var item = obj[i];
+        this.randomDrip(item);
+      }
+    } else {
+      var pathLength = obj.getTotalLength(),
+        start = obj.getPointAtLength( Math.random() * pathLength ),
+        strokeWidth = obj.attrs['stroke-width'] || this.STROKE_WIDTH,
+        strokeColor = obj.attrs.stroke,
+        drip = this.paper
+          .rect(start.x, start.y, strokeWidth, strokeWidth, strokeWidth/2)
+          .attr({
+            fill: strokeColor,
+            stroke: strokeColor
+          }).
+          animate({height: 100 * Math.random()}, 15000, '>');
+      
+      this.drips.push(drip);
+    }
   },
   
   redrawText: function(){
@@ -47,7 +73,7 @@ var Graffiti = {
         fill: 'rgb(' + textColor.join(',') + ')',
         'fill-opacity': this.OPACITY,
         stroke: strokeColor,
-        'stroke-width': 5,
+        'stroke-width': this.STROKE_WIDTH,
       });
   },
   
