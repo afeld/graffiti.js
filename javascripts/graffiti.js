@@ -50,6 +50,7 @@ var Graffiti = {
     
     var wave = this.makeWave(startX, mouseY, backwards);
     wave.insertBefore(this.textObj);
+    // this.randomDrip(wave);
   },
   
   getPath: function(obj){
@@ -61,7 +62,7 @@ var Graffiti = {
     var vRad = this.paper.height - startY,
       hRad = Math.pow(Math.random(), 3) * this.paper.width + 50,
       // Ramanujan approximation
-      circumference = Math.PI * (3*(hRad + vRad) - Math.sqrt((3*hRad + vRad) * (hRad + (3*vRad)))),
+      circumference = this.getCircumference(hRad, vRad),
       // scale the animation time by the size of the wave, so that the
       // speed is somewhat consistent
       fallingTime = circumference / 4,
@@ -98,6 +99,11 @@ var Graffiti = {
     return ellipse;
   },
   
+  // Ramanujan approximation for an ellipse
+  getCircumference: function(rx, ry){
+    return Math.PI * (3*(rx + ry) - Math.sqrt((3*rx + ry) * (rx + (3*ry))))
+  },
+  
   randomDrip: function(obj){
     if (obj.type === 'set'){
       for (var i = 0; i < obj.length; i++){
@@ -105,9 +111,17 @@ var Graffiti = {
         this.randomDrip(item);
       }
     } else {
-      var pathLength = obj.getTotalLength(),
-        start = obj.getPointAtLength( Math.random() * pathLength ),
-        strokeWidth = obj.attrs['stroke-width'] || this.STROKE_WIDTH,
+      var pathLength, start;
+      
+      if (obj.type === 'ellipse'){
+        pathLength = this.getCircumference(obj.attrs.rx, obj.attrs.ry);
+        // TODO start = {x: , y: };
+      } else {
+        pathLength = obj.getTotalLength();
+        start = obj.getPointAtLength( Math.random() * pathLength );
+      }
+      
+      var strokeWidth = obj.attrs['stroke-width'] || this.STROKE_WIDTH,
         strokeColor = obj.attrs.stroke,
         drip = this.paper
           .rect(start.x, start.y, strokeWidth, strokeWidth, strokeWidth/2)
@@ -133,7 +147,7 @@ var Graffiti = {
     }
     
     this.textObj = this.paper
-      .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 200)
+      .print(this.paper.width*0.1, this.paper.height/2, this.sourceText, font, 300)
       .attr({
         fill: this.colorStr(textColor),
         'fill-opacity': this.OPACITY,
