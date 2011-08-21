@@ -2,7 +2,7 @@ var Graffiti = {
   WIDTH: 800,
   HEIGHT: 600,
   STROKE_WIDTH: 5,
-  OPACITY: 0.8,
+  OPACITY: 0.7,
   
   SURFACE_PHOTOS: [
     {
@@ -31,6 +31,10 @@ var Graffiti = {
     
     this.redrawText();
     this.randomDrip(this.textObj);
+  },
+  
+  getPath: function(obj){
+    return obj.getSubpath(0, obj.getTotalLength());
   },
   
   randomDrip: function(obj){
