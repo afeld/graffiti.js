@@ -31,7 +31,25 @@ var Graffiti = {
     this.redrawText();
     this.randomDrip(this.textObj);
     
-    this.makeWave(this.paper.width, this.paper.height * 0.3, true);
+    $(window).click(function(e){
+      Graffiti.onClick.call(Graffiti, e.pageX, e.pageY);
+    });
+  },
+  
+  onClick: function(mouseX, mouseY){
+    var paper = this.paper,
+      startX, backwards;
+    
+    if (mouseX > paper.width/2){
+      startX = paper.width;
+      backwards = true;
+    } else {
+      startX = 0;
+      backwards = false;
+    }
+    
+    var wave = this.makeWave(startX, mouseY, backwards);
+    wave.insertBefore(this.textObj);
   },
   
   getPath: function(obj){
@@ -41,13 +59,13 @@ var Graffiti = {
   // animation technique found here: http://stackoverflow.com/questions/4631019/how-to-draw-a-vector-path-progressively-raphael-js
   makeWave: function(startX, startY, backwards){
     var vRad = this.paper.height - startY,
-      hRad = vRad * 0.4,
+      hRad = Math.pow(Math.random(), 3) * this.paper.width + 50,
       // Ramanujan approximation
       circumference = Math.PI * (3*(hRad + vRad) - Math.sqrt((3*hRad + vRad) * (hRad + (3*vRad)))),
       // scale the animation time by the size of the wave, so that the
       // speed is somewhat consistent
-      fallingTime = vRad * 4,
-      waveColor = [Math.random()*50, Math.random()*50 + 205, Math.random()*50 + 205],
+      fallingTime = circumference / 4,
+      waveColor = [Math.random()*0, Math.random()*50 + 205, Math.random()*50 + 205],
       offsetDest;
     
     if (backwards){
